@@ -7,23 +7,32 @@
       :size="60"
       :color="color"
     />
+
     <aplayer
-      v-else
+      v-if="!loading && !error"
       autoplay
       :music="currentPodcast"
       :list="podcasts"
-      :shuffle="false"
+      :color="color"
     >
-      <span slot="display" >
-        Episode description here...
-      </span>
+      <span slot="display"
+            slot-scope="{currentMusic, playStat}"
+            v-html="currentMusic.description"
+      />
     </aplayer>
+
+    <div v-if="error">
+      Error: {{error}}
+    </div>
+
+    <noscript>
+      <strong>We're sorry but the <em>Real</em> Wealth<sup>&reg;</sup> audio player doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
   </div>
 </template>
 
 <script>
 import Aplayer from 'vue-aplayer'
-import HelloWorld from './components/HelloWorld.vue'
 import axios from 'axios'
 import moment from 'moment'
 import { RadarSpinner } from 'epic-spinners'
@@ -61,10 +70,11 @@ export default {
       axios.get(`${API_URL}/users?slug=${this.slug}`)
         .then(res => {
           if (res.data.length === 0)
-            return this.error = true
+              return this.error = true
 
           this.advisor = res.data[0]
 
+          // determine group access
           switch(this.advisor.acf.compliance_group) {
             case 'generic':
               this.group = '?group-access=68'
@@ -139,6 +149,7 @@ export default {
               group = ''
           }
 
+          // determine podcast frequency (weekly or monthly)
           if (this.advisor.acf.podcast_frequency === 'weekly') {
             this.frequency = '&podcast-frequency=51'
           }
@@ -161,7 +172,8 @@ export default {
               title: pod.title.rendered,
               artist: pod.acf.guest_info[0].guest_name,
               src: pod.acf.podcast_file,
-              pic: pod.better_featured_image.media_details.sizes.medium.source_url
+              pic: pod.better_featured_image.media_details.sizes.thumbnail.source_url,
+              description: pod.content.rendered
             }
           })
           this.currentPodcast = this.podcasts[0]
@@ -175,8 +187,29 @@ export default {
   },
   components: {
     Aplayer,
-    RadarSpinner,
-    HelloWorld
+    RadarSpinner
   },
 }
 </script>
+
+<style lang="scss">
+  #app {
+
+    #loading { margin: 60px auto; }
+
+    .aplayer {
+      .aplayer-body {
+        .aplayer-info {
+          height: auto !important;
+          .aplayer-music {
+            .aplayer-title {
+              display: block !important;
+              font-size: 24px !important;
+            }
+          }
+        }
+      }
+    }
+
+  }
+</style>
