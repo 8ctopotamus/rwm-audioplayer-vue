@@ -208,6 +208,27 @@ export default {
     }
     .aplayer {
       .aplayer-body {
+        .aplayer-pic {
+          top: 80px;
+          .aplayer-button {
+            background: rgba(0,0,0,.5);
+          }
+          .aplayer-play {
+            bottom: 163%;
+          }
+          .aplayer-pause {
+            height: 26px;
+            width: 26px;
+            bottom: 140%;
+            right: 18px;
+            .aplayer-icon-pause {
+              height: 16px;
+              width: 16px;
+              top: 5px;
+              left: 5px;
+            }
+          }
+        }
         .aplayer-info {
           height: auto !important;
           .aplayer-music {
