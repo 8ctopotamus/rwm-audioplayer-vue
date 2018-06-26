@@ -21,7 +21,7 @@
         autoplay
         :music="currentPodcast"
         :list="podcasts"
-        :color="color"
+        :theme="color"
       >
         <span
           slot="display"
@@ -176,12 +176,14 @@ export default {
       axios.get(`${API_URL}/podcasts${this.group}${this.frequency}&page=${this.podcastDBPageNum}`)
         .then(res => {
           this.podcasts = res.data.map(pod => {
+            console.log(pod)
             return {
               title: pod.title.rendered,
               artist: pod.acf.guest_info[0].guest_name,
               src: pod.acf.podcast_file,
               pic: pod.better_featured_image.media_details.sizes.thumbnail.source_url,
-              description: pod.acf.email_for_clients
+              description: pod.acf.email_for_clients,
+              slug: pod.slug
             }
           })
           this.currentPodcast = this.podcasts[0]
