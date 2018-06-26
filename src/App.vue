@@ -1,5 +1,13 @@
 <template>
   <div id="app">
+    <noscript>
+      <strong>We're sorry but the <em>Real</em> Wealth<sup>&reg;</sup> audio player doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+
+    <div v-if="error">
+      Error: {{error}}
+    </div>
+
     <radar-spinner
       id="loading"
       v-if="loading"
@@ -8,30 +16,30 @@
       :color="color"
     />
 
-    <aplayer
-      v-if="!loading && !error"
-      autoplay
-      :music="currentPodcast"
-      :list="podcasts"
-      :color="color"
-    >
-      <span slot="display"
-            slot-scope="{currentMusic, playStat}"
-            v-html="currentMusic.description"
-      />
-    </aplayer>
-
-    <div v-if="error">
-      Error: {{error}}
+    <div v-if="!loading && !error">
+      <aplayer
+        autoplay
+        :music="currentPodcast"
+        :list="podcasts"
+        :color="color"
+      >
+        <span
+          slot="display"
+          slot-scope="{currentMusic, playStat}"
+          v-html="currentMusic.description"
+        />
+      </aplayer>
+      <action-buttons
+       :advisor="advisor"
+       :podcast="currentPodcast"
+       :color="color"
+      ></action-buttons>
     </div>
-
-    <noscript>
-      <strong>We're sorry but the <em>Real</em> Wealth<sup>&reg;</sup> audio player doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
   </div>
 </template>
 
 <script>
+import ActionButtons from './components/ActionButtons.vue'
 import Aplayer from 'vue-aplayer'
 import axios from 'axios'
 import moment from 'moment'
@@ -173,7 +181,7 @@ export default {
               artist: pod.acf.guest_info[0].guest_name,
               src: pod.acf.podcast_file,
               pic: pod.better_featured_image.media_details.sizes.thumbnail.source_url,
-              description: pod.content.rendered
+              description: pod.acf.email_for_clients
             }
           })
           this.currentPodcast = this.podcasts[0]
@@ -186,6 +194,7 @@ export default {
     }
   },
   components: {
+    ActionButtons,
     Aplayer,
     RadarSpinner
   },
@@ -194,9 +203,9 @@ export default {
 
 <style lang="scss">
   #app {
-
-    #loading { margin: 60px auto; }
-
+    #loading {
+      margin: 60px auto;
+    }
     .aplayer {
       .aplayer-body {
         .aplayer-info {
