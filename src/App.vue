@@ -18,22 +18,34 @@
 
     <div v-if="!loading && !error">
       <aplayer
-        autoplay
+        :autoplay="autoplay"
         :music="currentPodcast"
         :list="podcasts"
+        :listFolded="playlist"
         :theme="color"
+        :style="{borderTop: `3px solid ${color}`}"
       >
-        <span
+        <div
           slot="display"
           slot-scope="{currentMusic, playStat}"
-          v-html="currentMusic.description"
-        />
+        >
+          <span v-html="currentMusic.description" />
+          <action-buttons
+           :advisor="advisor"
+           :podcast="currentPodcast"
+           :color="color"
+          ></action-buttons>
+        </div>
       </aplayer>
-      <action-buttons
-       :advisor="advisor"
-       :podcast="currentPodcast"
-       :color="color"
-      ></action-buttons>
+      <a
+        v-if="rwmlink"
+        class="rwm-link"
+        :href="'https://realwealthmedia.com/' + advisor.slug"
+        target="_blank"
+        :style="{color: color}"
+      >
+        Visit {{advisor.name}}'s <em>Real</em> Wealth<sup>&reg;</sup> Media page &raquo;
+      </a>
     </div>
   </div>
 </template>
@@ -56,7 +68,8 @@ export default {
     'autoplay',
     'color',
     'playlist',
-    'slug'
+    'slug',
+    'rwmlink'
   ],
   data () {
     return {
@@ -117,6 +130,9 @@ export default {
             case 'legacy':
               this.group = '?group-access=133'
               break
+            case 'lionstreet':
+    					group = '?group-access=138'
+    					break
             case 'mholdings':
     					group = '?group-access=135'
     					break
@@ -216,18 +232,25 @@ export default {
             background: rgba(0,0,0,.5);
           }
           .aplayer-play {
-            bottom: 163%;
+            bottom: 154%;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            .aplayer-icon-play {
+              top: 10px;
+              left: 11px;
+            }
           }
           .aplayer-pause {
-            height: 26px;
-            width: 26px;
-            bottom: 140%;
-            right: 18px;
+            height: 40px;
+            width: 40px;
+            bottom: 131%;
+            right: 5px;
             .aplayer-icon-pause {
               height: 16px;
               width: 16px;
-              top: 5px;
-              left: 5px;
+              top: 12px;
+              left: 12px;
             }
           }
         }
@@ -241,7 +264,14 @@ export default {
           }
         }
       }
+      .aplayer-controller {
+        margin: 8px 0;
+      }
     }
-
+    .rwm-link {
+      display: block;
+      margin-top: 12px;
+      margin-left: 5px;
+    }
   }
 </style>

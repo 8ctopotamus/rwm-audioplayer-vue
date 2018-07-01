@@ -1,8 +1,8 @@
 <template>
   <div class="action-buttons">
-    <button @click="showModal('more-info')" :style="{background: color}">More Info</button>
+    <button @click="showModal('moreInfo')" :style="{background: color}">More Info</button>
     <button @click="showModal('subscribe')" :style="{background: color}">Subscribe</button>
-    <button @click="showModal('f2f')" :style="{background: color}">Forward to a friend</button>
+    <button @click="showModal('forwardToAFriend')" :style="{background: color}">Forward to a friend</button>
     <a :href="podcast.src" download>
       <button :style="{background: color}">Download Episode</button>
     </a>
@@ -10,7 +10,7 @@
     <modal v-if="modal" @close="modal = false">
       <h3 slot="header" :style="{color: color}">{{ formTitle }}</h3>
       <div slot="body">
-        <form v-if="form === 'more-info'">
+        <form v-if="formName === 'moreInfo'">
           <label for="name">Name *</label>
           <input v-model="formValues.name" type="text" name="name" required />
           <label for="email">Email *</label>
@@ -30,7 +30,7 @@
             Submit
           </button>
         </form>
-        <form v-if="form === 'subscribe'">
+        <form v-if="formName === 'subscribe'">
           <label for="firstname">First name *</label>
           <input v-model="formValues.firstname" type="text" name="firstname" required />
           <label for="lastname">Last name *</label>
@@ -52,7 +52,7 @@
             Submit
           </button>
         </form>
-        <form v-if="form === 'f2f'">
+        <form v-if="formName === 'forwardToAFriend'">
           <label for="name">Name *</label>
           <input v-model="formValues.name" type="text" name="name" required />
           <label for="email">Email *</label>
@@ -63,8 +63,8 @@
           <input v-model="formValues.friendsEmail" type="email" name="friendsEmail" required />
           <label for="subjectLine">Subject line *</label>
           <input v-model="formValues.subjectLine" type="text" name="subjectLine" required />
-          <label for="f2fMessage">Message</label>
-          <textarea v-model="formValues.f2fMessage" name="f2fMessage" rows="8" cols="80"></textarea>
+          <label for="forwardToAFriendMessage">Message</label>
+          <textarea v-model="formValues.forwardToAFriendMessage" name="forwardToAFriendMessage" rows="8" cols="80"></textarea>
           <button
             @click.prevent="submitForm"
             type="submit"
@@ -82,16 +82,17 @@
 <script>
 import axios from 'axios'
 import Modal from './Modal.vue'
+import queryString from 'query-string'
 export default {
   name: 'ActionButtons',
-  props: {
-    advisor: Object,
-    podcast: Object,
-    color: String
-  },
+  props: [
+    'advisor',
+    'podcast',
+    'color',
+  ],
   data () {
     return {
-      form: '',
+      formName: '',
       formTitle: '',
       modal: false,
       formValues: {
@@ -117,74 +118,56 @@ export default {
             .forEach(key => this.$set(this.formValues, key, ''))
       // set the title
       switch(form) {
-        case 'more-info':
+        case 'moreInfo':
           this.formTitle = 'More information'
           break
         case 'subscribe':
           this.formTitle = 'Subscribe'
           break
-        case 'f2f':
+        case 'forwardToAFriend':
           this.formTitle = 'Forward to a friend'
           break
         default:
           this.formTitle = ''
           return
       }
-      this.form = form
+      this.formName = form
       this.modal = true
     },
     submitForm () {
-      var data = ''
-      Object.keys(this.formValues).forEach((key, i) => {
+      var data = Object.keys(this.formValues).reduce((obj, key) => {
         if (this.formValues[key] !== '') {
-          // format birthday value
-          if (key === 'birthday' && key !== '') {
-            var datePiecesArr = this.formValues[key].split('-')
-            var year = datePiecesArr.shift() // 2018
-            datePiecesArr.push(year)
-            var formattedDate = datePiecesArr.join('-')
-            this.formValues[key] = formattedDate
+          if (key === 'birthday') {
+            if (key === 'birthday' && key !== '') {
+              var datePiecesArr = this.formValues[key].split('-')
+              var year = datePiecesArr.shift()
+              datePiecesArr.push(year)
+              var formattedDate = datePiecesArr.join('-')
+              this.formValues[key] = formattedDate
+            }
           }
-          // build query string
-          i == 0 ? data += key + '=' + this.formValues[key] :
-                   data += '&' + key + '=' + this.formValues[key]
+          obj[key] = this.formValues[key]
         }
-      })
+        return obj
+      }, {})
       // advisor email
-      data += '&advisorEmail=' + this.advisor.acf.email_addresses[0].email_address
+      data.advisorEmail = this.advisor.acf.email_addresses[0].email_address
       // RWM podcast Link
-      data += `&podcastLink=https://realwealthmedia.com/${this.advisor.slug}?play=${this.podcast.slug}`
+      data.podcastLink = `https://realwealthmedia.com/${this.advisor.slug}?play=${this.podcast.slug}`
       // podcast title
-      data += '&currentPodcastTitle=' + this.podcast.title.replace(/ /g, '%20')
+      data.currentPodcastTitle = this.podcast.title.replace(/ /g, '%20')
 
       console.log(data)
 
-      // // sends to RWMarketing server
-      // var request = new XMLHttpRequest()
-      // request.open('POST', 'https://realwealthmarketing.com/wp-content/realwealthmedia-forms/rw-' + form.id + '-process.php', true)
-      // request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8')
-      //
-      // request.send(data)
-      //
-      // request.onload = function() {
-      //   if (request.status >= 200 && request.status < 400) {
-      //     // Success!
-      //     form.reset()
-      //     self.$$('paper-dialog').close()
-      //     document.querySelector('rw-app').showToast(request.responseText, 'thumb-up')
-      //   } else {
-      //     document.querySelector('rw-app').showToast('[Server Error]', 'warning')
-      //   }
-      // }
-      //
-      // request.onerror = function() {
-      //   document.querySelector('rw-app').showToast('[Connection Error]', 'warning')
-      // }
-
+      // sends to RWMarketing server
+      axios
+        .post(`https://realwealthmarketing.com/wp-content/realwealthmedia-forms/rw-${this.formName}Form-process.php`, data)
+        .then(res => console.log(res))
+        .catch(err => console.log(err))
 
 
       // // subscribeForm sends to worbix
-      // if (form.id === 'subscribeForm') {
+      // if (this.formName === 'subscribe') {
       //   var fullname = this.$.firstname.value + ' ' + this.$.lastname.value
       //
       //   // NEW
@@ -231,15 +214,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .action-buttons {
+    // margin-left: 5px;
+  }
   button {
-    margin-top: 6px;
+    font-size: .75rem;
+    border-radius: 50px;
     margin-right: 10px;
+    margin-bottom: 8px;
     color: white;
     padding: 6px 14px;
     border: none;
+    // box-shadow: 0px 1px 3px rgba(0,0,0,.35);
+    transition: transform 360ms ease;
     &:hover {
       cursor: pointer;
       opacity: .8;
+      box-shadow: 0px 2px 5px rgba(0,0,0,.5);
+      transform: scale(1.05);
     }
   }
   label,
