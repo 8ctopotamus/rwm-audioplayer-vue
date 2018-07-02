@@ -3,6 +3,8 @@ import App from './App.vue'
 
 Vue.config.productionTip = false
 
+import './scss/main.scss'
+
 // get user's settings
 const rwPlayer = document.getElementById('rw-player')
 const slug = rwPlayer.dataset.slug || 'sg'
