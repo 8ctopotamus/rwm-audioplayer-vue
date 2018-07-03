@@ -70,7 +70,7 @@
 
 <script>
 import axios from 'axios'
-
+import querystring from 'query-string'
 export default {
   name: 'Forms',
   props: [
@@ -126,11 +126,12 @@ export default {
       // podcast title
       data.currentPodcastTitle = this.podcast.title.replace(/ /g, '%20')
 
-      console.log('sent: ', data)
+      const qs = querystring.stringify(data)
+      console.log('sent: ', qs)
 
       // sends to RWMarketing server
       axios
-        .post(`https://realwealthmarketing.com/wp-content/realwealthmedia-forms/rw-${this.formName}Form-process.php`, data)
+        .post(`https://realwealthmarketing.com/wp-content/realwealthmedia-forms/rw-${this.formName}Form-process-TEST.php`, qs)
         .then(res => this.$emit('submission-response', {type:'success', message: '😁 Form submision successful.'}))
         .catch(err => {
           console.log(err)
@@ -141,8 +142,6 @@ export default {
       // worbix subscription
       if (this.formName === 'subscribe') {
         var fullname = this.firstname + ' ' + this.lastname
-
-        // NEW
         var encodeString = fullname+":"+this.email+":"+this.phone+":"+this.message+":"+window.location.pathname.split('/')[1]
         var specialPropertyString = "lead status:new;subscription:" + this.pFrequency.toLowerCase() + 'ly'
         encodeString += ":" + window.btoa(specialPropertyString)
