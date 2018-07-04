@@ -70,13 +70,13 @@ import Aplayer from 'vue-aplayer'
 import axios from 'axios'
 import Forms from './components/Forms.vue'
 import Modal from './components/Modal.vue'
-// import moment from 'moment'
+import moment from 'moment'
 import { RadarSpinner } from 'epic-spinners'
 
 const API_URL = 'https://realwealthmarketing.com/wp-json/wp/v2'
-// const CURRENT_DATE = moment().format('YYYY-MM-DD')
-// const ONE_YEAR_AGO = moment().subtract(1, 'year').format('YYYY-MM-DD')
-// const TWO_YEARS_AGO = moment().subtract(2, 'years').format('YYYY-MM-DD')
+const CURRENT_DATE = moment().format('YYYY-MM-DD')
+const ONE_YEAR_AGO = moment().subtract(1, 'year').format('YYYY-MM-DD')
+const TWO_YEARS_AGO = moment().subtract(2, 'years').format('YYYY-MM-DD')
 
 export default {
   name: 'app',
@@ -210,16 +210,25 @@ export default {
     getPodcasts () {
       axios.get(`${API_URL}/podcasts${this.group}${this.frequency}&page=${this.podcastDBPageNum}`)
         .then(res => {
-          this.podcasts = res.data.map(pod => {
-            return {
-              title: pod.title.rendered,
-              artist: pod.acf.guest_info[0].guest_name,
-              src: pod.acf.podcast_file,
-              pic: pod.better_featured_image.media_details.sizes.thumbnail.source_url,
-              description: pod.acf.email_for_clients,
-              slug: pod.slug
-            }
-          })
+          this.podcasts = res.data
+            .filter(function(podcast) {
+              return podcast.acf.air_date <= CURRENT_DATE
+            })
+    				// filter by library_start_date
+            .filter(pod => {
+              var pDate = pod.date.split('T')[0]
+              return pDate <= CURRENT_DATE && pDate >= this.advisor.acf.library_start_date && pDate >= TWO_YEARS_AGO
+            })
+            .map(pod => {
+              return {
+                title: pod.title.rendered,
+                artist: pod.acf.guest_info[0].guest_name,
+                src: pod.acf.podcast_file,
+                pic: pod.better_featured_image.media_details.sizes.thumbnail.source_url,
+                description: pod.acf.email_for_clients,
+                slug: pod.slug
+              }
+            })
           this.currentPodcast = this.podcasts[0]
           this.loading = false
         })

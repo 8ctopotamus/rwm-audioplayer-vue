@@ -124,20 +124,16 @@ export default {
       // RWM podcast Link
       data.podcastLink = `https://realwealthmedia.com/${this.advisor.slug}?play=${this.podcast.slug}`
       // podcast title
-      data.currentPodcastTitle = this.podcast.title.replace(/ /g, '%20')
-
-      const qs = querystring.stringify(data)
-      console.log('sent: ', qs)
+      data.currentPodcastTitle = this.podcast.title
 
       // sends to RWMarketing server
       axios
-        .post(`https://realwealthmarketing.com/wp-content/realwealthmedia-forms/rw-${this.formName}Form-process-TEST.php`, qs)
+        .post(`https://realwealthmarketing.com/wp-content/realwealthmedia-forms/rw-${this.formName}Form-process.php`, querystring.stringify(data))
         .then(res => this.$emit('submission-response', {type:'success', message: '😁 Form submision successful.'}))
         .catch(err => {
           console.log(err)
           this.$emit('submission-response', {type: 'error', message: '🤔 Hmm. Form submission failed.'})
         })
-
 
       // worbix subscription
       if (this.formName === 'subscribe') {
