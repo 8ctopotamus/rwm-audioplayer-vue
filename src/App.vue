@@ -19,8 +19,9 @@
 
     <div v-if="!loading">
       <aplayer
+        ref="player"
         :autoplay="autoplay"
-        :music="currentPodcast"
+        :music="currentTrack"
         :list="podcasts"
         :listFolded="!playlist"
         :theme="color"
@@ -33,7 +34,7 @@
           <span v-html="currentMusic.description" />
           <action-buttons
             :color="color"
-            :podcast="currentPodcast"
+            :podcast="currentTrack"
             @show-modal="showModal($event)"
           ></action-buttons>
         </div>
@@ -52,7 +53,7 @@
         <div slot="body">
           <Forms
             :advisor="advisor"
-            :podcast="currentPodcast"
+            :podcast="currentTrack"
             :form-name="formName"
             :color="color"
             @submission-response="showMessage($event)"
@@ -98,9 +99,11 @@ export default {
       frequency: null,
       podcastDBPageNum: 1,
       podcasts: [],
-      currentPodcast: {},
-      formName: '',
-      formTitle: '',
+      advisor_intro: null,
+      advisor_outro: null,
+      currentTrack: null,
+      formName: null,
+      formTitle: null,
     }
   },
   mounted () {
@@ -201,6 +204,30 @@ export default {
             this.frequency = '&podcast-frequency=52'
           }
 
+          // set up intro audio
+          if (this.advisor.acf.intro_audio) {
+            this.advisor_intro = {
+              title: `Intro message from ${this.advisor.name}`,
+              artist: this.advisor.name,
+              src: this.advisor.acf.intro_audio,
+              pic: this.advisor.acf.advisor_image,
+              description: 'Intro audio message.',
+              slug: 'advisor-intro'
+            }
+          }
+
+          // set up outro audio
+          if (this.advisor.acf.outro_audio) {
+            this.advisor_outro = {
+              title: `Outro message from ${this.advisor.name}`,
+              artist: this.advisor.name,
+              src: this.advisor.acf.outro_audio,
+              pic: this.advisor.acf.advisor_image,
+              description: 'Outro audio message',
+              slug: 'advisor-outro'
+            }
+          }
+
           this.getPodcasts()
         })
         .catch(err => {
@@ -214,7 +241,7 @@ export default {
             .filter(function(podcast) {
               return podcast.acf.air_date <= CURRENT_DATE
             })
-    				// filter by library_start_date
+            // filter by library_start_date
             .filter(pod => {
               var pDate = pod.date.split('T')[0]
               return pDate <= CURRENT_DATE && pDate >= this.advisor.acf.library_start_date && pDate >= TWO_YEARS_AGO
@@ -229,7 +256,16 @@ export default {
                 slug: pod.slug
               }
             })
-          this.currentPodcast = this.podcasts[0]
+
+          // insert advisor intro/outro
+          if (this.advisor_intro) {
+            this.podcasts.splice(0, 0, this.advisor_intro)
+          }
+          if (this.advisor_outro) {
+            this.podcasts.splice(2, 0, this.advisor_outro)
+          }
+
+          this.currentTrack = this.podcasts[0]
           this.loading = false
         })
         .catch(err => {
