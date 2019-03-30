@@ -132,6 +132,9 @@ export default {
             case 'cambridge':
               this.group = '?group-access=104'
               break
+            case 'concorde':
+              this.group = '?group-access=201'
+              break
             case 'cfd':
               this.group = '?group-access=112'
               break
@@ -238,6 +241,9 @@ export default {
       axios.get(`${API_URL}/podcasts${this.group}${this.frequency}&page=${this.podcastDBPageNum}`)
         .then(res => {
           this.podcasts = res.data
+            .filter(function(podcast) {
+              return podcast.acf.compliance_lock === false
+            })
             .filter(function(podcast) {
               return podcast.acf.air_date <= CURRENT_DATE
             })
