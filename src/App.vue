@@ -76,7 +76,7 @@ import { RadarSpinner } from 'epic-spinners'
 
 const API_URL = 'https://realwealthmarketing.com/wp-json/wp/v2'
 const CURRENT_DATE = moment().format('YYYY-MM-DD')
-const ONE_YEAR_AGO = moment().subtract(1, 'year').format('YYYY-MM-DD')
+// const ONE_YEAR_AGO = moment().subtract(1, 'year').format('YYYY-MM-DD')
 const TWO_YEARS_AGO = moment().subtract(2, 'years').format('YYYY-MM-DD')
 
 export default {
@@ -202,8 +202,7 @@ export default {
           // determine podcast frequency (weekly or monthly)
           if (this.advisor.acf.podcast_frequency === 'weekly') {
             this.frequency = '&podcast-frequency=51'
-          }
-          else {
+          } else {
             this.frequency = '&podcast-frequency=52'
           }
 
@@ -242,7 +241,11 @@ export default {
         .then(res => {
           this.podcasts = res.data
             .filter(function(podcast) {
-              return podcast.acf.compliance_lock === false
+              if (podcast.acf.compliance_lock) {
+                return false
+              } else {
+                return podcast
+              }
             })
             .filter(function(podcast) {
               return podcast.acf.air_date <= CURRENT_DATE
