@@ -129,6 +129,9 @@ export default {
             case 'brookstone':
               this.group = '?group-access=113'
               break
+            case 'cabotlodge':
+              this.group = '?group-access=212'
+              break
             case 'cambridge':
               this.group = '?group-access=104'
               break
