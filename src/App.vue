@@ -29,7 +29,7 @@
       >
         <div
           slot="display"
-          slot-scope="{currentMusic, playStat}"
+          slot-scope="{currentMusic}"
         >
           <span v-html="currentMusic.description" />
           <action-buttons
@@ -135,6 +135,9 @@ export default {
             case 'cambridge':
               this.group = '?group-access=104'
               break
+            case 'calton':
+              this.group = '?group-access=234'
+              break
             case 'concorde':
               this.group = '?group-access=201'
               break
@@ -161,6 +164,9 @@ export default {
               break
             case 'lionstreet':
               this.group = '?group-access=138'
+              break
+            case 'massmutual':
+              this.group = '?group-access=232'
               break
             case 'mholdings':
               this.group = '?group-access=135'

@@ -129,7 +129,7 @@ export default {
       // sends to RWMarketing server
       axios
         .post(`https://realwealthmarketing.com/wp-content/realwealthmedia-forms/rw-${this.formName}Form-process.php`, querystring.stringify(data))
-        .then(res => this.$emit('submission-response', {type:'success', message: '😁 Form submision successful.'}))
+        .then(() => this.$emit('submission-response', {type:'success', message: '😁 Form submision successful.'}))
         .catch(err => {
           console.log(err)
           this.$emit('submission-response', {type: 'error', message: '🤔 Hmm. Form submission failed.'})
@@ -148,7 +148,7 @@ export default {
         var base64String = window.btoa(encodeString)
         var url = "https://apps.worbix.com/cxf/public/public/createContactRWM/"+base64String
         axios.get(url)
-          .then(res => this.$emit('submission-response', {type:'success', message: '😁 You successfully subscribed.'}))
+          .then(() => this.$emit('submission-response', {type:'success', message: '😁 You successfully subscribed.'}))
           .catch(err => {
             console.log(err)
             this.$emit('submission-response', {type: 'error', message: '🤔 Subscription failed.'})
