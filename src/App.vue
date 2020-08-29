@@ -34,6 +34,7 @@
           <span v-html="currentMusic.description" />
           <action-buttons
             :color="color"
+            :advisor="advisor"
             :podcast="currentTrack"
             @show-modal="showModal($event)"
           ></action-buttons>
@@ -120,6 +121,9 @@ export default {
 
           // determine group access
           switch(this.advisor.acf.compliance_group) {
+            case 'advisoryalpha':
+              this.group = '?group-access=247'
+              break
             case 'generic':
               this.group = '?group-access=68'
               break
@@ -147,6 +151,9 @@ export default {
             case 'firstheartlandcapital':
               this.group = '?group-access=60'
               break
+            case 'forta':
+              this.group = '?group-access=248'
+              break
             case 'harbour':
               this.group = '?group-access=136'
               break
@@ -171,6 +178,9 @@ export default {
             case 'mholdings':
               this.group = '?group-access=135'
               break
+            case 'mutualofomaha':
+              this.group = '?group-access=245'
+              break
             case 'naifa':
               this.group = '?group-access=62'
               break
@@ -194,6 +204,9 @@ export default {
               break
             case 'signator':
               this.group = '?group-access=132'
+              break
+            case 'simplicity':
+              this.group = '?group-access=246'
               break
             case 'sfa':
               this.group = '?group-access=110'

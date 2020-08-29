@@ -24,3 +24,17 @@ textarea {
 input {
   margin-bottom: 8px;
 }
+
+.action-buttons {
+  margin-top: 12px;
+}
+
+@media(max-width: 767px) {
+  .aplayer .aplayer-body {
+    flex-direction: column;
+  }
+  .aplayer-pic {
+    background-image: none !important;
+    background-color: transparent !important;
+  }
+}
